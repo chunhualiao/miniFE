@@ -13,7 +13,8 @@ MINIFE_MATRIX_TYPE = -DMINIFE_CSR_MATRIX
 #-----------------------------------------------------------------------
 
 CFLAGS = -v -O3 -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda \
-	--cuda-path=$(CUDA_ROOT) -ffp-contract=fast -fopenmp-nonaliased-maps
+	--cuda-path=$(CUDA_ROOT) -ffp-contract=fast
+#	--cuda-path=$(CUDA_ROOT) -ffp-contract=fast -fopenmp-nonaliased-maps
 CXXFLAGS = $(CFLAGS)
 
 CPPFLAGS = -I. -I../utils -I../fem $(MINIFE_TYPES) \
