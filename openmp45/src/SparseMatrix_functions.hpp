@@ -501,6 +501,7 @@ void operator()(MatrixType& A,
             VectorType& x,
             VectorType& y)
 {
+  static size_t counter=0; 
   	exchange_externals(A, x);
 
   	typedef typename MatrixType::ScalarType ScalarType;
@@ -533,6 +534,7 @@ void operator()(MatrixType& A,
 
                 ycoefs[row] = sum;
         }
+        std::cout<<"matvec_std::operator() calling counter="<< counter++ <<std::endl;  	
 }
 };
 #elif defined(MINIFE_ELL_MATRIX)
