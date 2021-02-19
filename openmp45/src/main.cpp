@@ -105,7 +105,11 @@ int main(int argc, char** argv) {
     std::cout << "Creating OpenMP Thread Pool..." << std::endl;
   }
   int value = 0;
+#ifdef _OPENMP  
   const int thread_count = omp_get_max_threads();
+#else
+  const int thread_count = 1;
+#endif  
 #pragma omp parallel for reduction(+:value)
   for(int i = 0; i < thread_count; ++i) {
 	value += 1;
