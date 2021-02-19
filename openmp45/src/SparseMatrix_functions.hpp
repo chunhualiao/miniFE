@@ -51,6 +51,10 @@
 #include <mpi.h>
 #endif
 
+#include <apollo/Apollo.h>
+#include <apollo/Region.h>
+#include <cassert>
+
 namespace miniFE {
 
 template<typename MatrixType>
@@ -515,26 +519,90 @@ void operator()(MatrixType& A,
         const ScalarType* const xcoefs            = &x.coefs[0];
         ScalarType* ycoefs                        = &y.coefs[0];
         const ScalarType beta                     = 0;
+#if 1 // Apollo
 
-        #pragma omp target teams distribute parallel for \
-		map(to: Acols[0:A.packed_cols.size()]) \
-		map(to: Arowoffsets[0:A.row_offsets.size()]) \
-		map(to: Acoefs[0:A.packed_coefs.size()]) \
-		map(to: xcoefs[0:x.coefs.size()]) \
-		map(tofrom: ycoefs[0:y.coefs.size()])
-        for(MINIFE_GLOBAL_ORDINAL row = 0; row < rows_size; ++row) {
+        Apollo *apollo = Apollo::instance();
+        assert (apollo);
+        Apollo::Region *region =NULL; 
+        if (counter==0)
+        {
+          // Create Apollo region
+          // This cannot be called multiple times!!
+          region = new Apollo::Region(
+              /* NumFeatures */ 1,
+              /* id */ "matvec_std::operator()",
+              /* NumPolicies */ 2);
+          printf("==========\n START APOLLO TRAINING \n==========\n");
+        }
+        else
+          region = apollo->getRegion("matvec_std::operator()");
+
+        assert (region);
+
+        region->begin( /* feature vector */ { (float)A.packed_coefs.size()} );
+                // Get the policy to execute from Apollo
+        int policy = region->getPolicyIndex();
+        switch(policy) {
+          case 0: 
+            { 
+#pragma omp parallel for \
+              shared(Acols, Arowoffsets, Acoefs, xcoefs, ycoefs)
+              for(MINIFE_GLOBAL_ORDINAL row = 0; row < rows_size; ++row) {
                 const MINIFE_GLOBAL_ORDINAL row_start = Arowoffsets[row];
                 const MINIFE_GLOBAL_ORDINAL row_end   = Arowoffsets[row+1];
 
                 MINIFE_SCALAR sum = beta * ycoefs[row];
 
                 for(MINIFE_GLOBAL_ORDINAL i = row_start; i < row_end; ++i) {
-                        sum += Acoefs[i] * xcoefs[Acols[i]];
+                  sum += Acoefs[i] * xcoefs[Acols[i]];
                 }
 
                 ycoefs[row] = sum;
+              }
+
+              break;
+            }
+          case 1: 
+            {
+#endif         
+
+#if 1              
+#pragma omp target teams distribute parallel for \
+              map(to: Acols[0:A.packed_cols.size()]) \
+              map(to: Arowoffsets[0:A.row_offsets.size()]) \
+              map(to: Acoefs[0:A.packed_coefs.size()]) \
+              map(to: xcoefs[0:x.coefs.size()]) \
+              map(tofrom: ycoefs[0:y.coefs.size()])
+              for(MINIFE_GLOBAL_ORDINAL row = 0; row < rows_size; ++row) {
+                const MINIFE_GLOBAL_ORDINAL row_start = Arowoffsets[row];
+                const MINIFE_GLOBAL_ORDINAL row_end   = Arowoffsets[row+1];
+
+                MINIFE_SCALAR sum = beta * ycoefs[row];
+
+                for(MINIFE_GLOBAL_ORDINAL i = row_start; i < row_end; ++i) {
+                  sum += Acoefs[i] * xcoefs[Acols[i]];
+                }
+
+                ycoefs[row] = sum;
+              }
+
+#endif
+
+#if 1   //Apollo           
+              break;
+            }
+          default: assert("invalid policy\n");
         }
-        std::cout<<"matvec_std::operator() calling counter="<< counter++ <<std::endl;  	
+        region->end(); 
+        counter++; 
+
+        if (counter==100)
+        {
+          apollo->flushAllRegionMeasurements(counter);
+          printf("==========\n DONE TRAINING \n==========\n");
+        }
+//        std::cout<<"matvec_std::operator() calling counter="<< counter++ << " compressed array size "<<A.packed_coefs.size() <<std::endl;  	
+#endif
 }
 };
 #elif defined(MINIFE_ELL_MATRIX)
