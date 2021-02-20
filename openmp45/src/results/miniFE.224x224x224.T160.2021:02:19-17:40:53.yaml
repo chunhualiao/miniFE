@@ -1,0 +1,61 @@
+Mini-Application Name: miniFE
+Mini-Application Version: 2.0
+Global Run Parameters: 
+  dimensions: 
+    nx: 224
+    ny: 224
+    nz: 224
+  load_imbalance: 0
+  mv_overlap_comm_comp: 0 (no)
+  OpenMP Max Threads:: 160
+  number of processors: 1
+  ScalarType: double
+  GlobalOrdinalType: int
+  LocalOrdinalType: int
+Platform: 
+  hostname: lassen5
+  kernel name: 'Linux'
+  kernel release: '4.14.0-115.21.2.1chaos.ch6a.ppc64le'
+  processor: 'ppc64le'
+Build: 
+  CXX: '/usr/tcetmp/bin/clang++'
+  compiler version: 'clang version 11.0.0'
+  CXXFLAGS: '-I /g/g17/liao6/workspace-wsa/parco-ldrd/apollo/install-lassen/include -v -g -O3 -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda --cuda-path=/usr/tce/packages/cuda/cuda-10.1.243 -ffp-contract=fast'
+  using MPI: no
+Run Date/Time: 2021-02-19, 17-38-02
+Rows-per-proc Load Imbalance: 
+  Largest (from avg, %): 0
+  Std Dev (%): 0
+Matrix structure generation: 
+  Mat-struc-gen Time: 18.1748
+FE assembly: 
+  FE assembly Time: 0.800156
+Matrix attributes: 
+  Global Nrows: 11390625
+  Global NNZ: 304821217
+  Global Memory (GB): 3.49151
+  Pll Memory Overhead (MB): 0
+  Rows per proc MIN: 11390625
+  Rows per proc MAX: 11390625
+  Rows per proc AVG: 1.13906e+07
+  NNZ per proc MIN: 304821217
+  NNZ per proc MAX: 304821217
+  NNZ per proc AVG: 3.04821e+08
+CG solve: 
+  Iterations: 200
+  Final Resid Norm: 0.00617654
+  WAXPY Time: 28.3347
+  WAXPY Flops: 2.02984e+10
+  WAXPY Mflops: 716.379
+  DOT Time: 20.0161
+  DOT Flops: 8.99154e+09
+  DOT Mflops: 449.215
+  MATVEC Time: 102.398
+  MATVEC Flops: 1.22538e+11
+  MATVEC Mflops: 1196.69
+  Total: 
+    Total CG Time: 150.805
+    Total CG Flops: 1.51828e+11
+    Total CG Mflops: 1006.79
+  Time per iteration: 0.754024
+Total Program Time: 170.925
