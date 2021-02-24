@@ -519,7 +519,6 @@ void operator()(MatrixType& A,
         const ScalarType* const xcoefs            = &x.coefs[0];
         ScalarType* ycoefs                        = &y.coefs[0];
         const ScalarType beta                     = 0;
-#if 1 // Apollo
 
         Apollo *apollo = Apollo::instance();
         assert (apollo);
@@ -564,9 +563,7 @@ void operator()(MatrixType& A,
             }
           case 1: 
             {
-#endif         
-
-#if 1              
+         
 #pragma omp target teams distribute parallel for \
               map(to: Acols[0:A.packed_cols.size()]) \
               map(to: Arowoffsets[0:A.row_offsets.size()]) \
@@ -585,10 +582,6 @@ void operator()(MatrixType& A,
 
                 ycoefs[row] = sum;
               }
-
-#endif
-
-#if 1   //Apollo           
               break;
             }
           default: assert("invalid policy\n");
@@ -602,7 +595,7 @@ void operator()(MatrixType& A,
           printf("==========\n DONE TRAINING \n==========\n");
         }
 //        std::cout<<"matvec_std::operator() calling counter="<< counter++ << " compressed array size "<<A.packed_coefs.size() <<std::endl;  	
-#endif
+
 }
 };
 #elif defined(MINIFE_ELL_MATRIX)
